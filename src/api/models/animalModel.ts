@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import {Animals} from '../../types/localtypes';
+import {Animals, AnimalModel} from '../../types/localtypes';
 
-const animalsSchema = new mongoose.Schema<Animals>({
+const animalSchema = new mongoose.Schema<Animals>({
   animals_name: {
     type: String,
     required: true,
@@ -32,4 +32,42 @@ const animalsSchema = new mongoose.Schema<Animals>({
   },
 });
 
-export default mongoose.model<Animals>('Animals', animalsSchema);
+animalSchema.statics.findBySpecies = function (species_name: string) {
+  return this.aggregate([
+    {
+      $lookup: {
+        from: 'species',
+        localField: 'species',
+        foreignField: '_id',
+        as: 'species',
+      },
+    },
+    {
+      $unwind: '$species',
+    },
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'species.category',
+        foreignField: '_id',
+        as: 'species.category',
+      },
+    },
+    {
+      $unwind: '$species.category',
+    },
+    {
+      $match: {
+        'species.species_name': species_name,
+      },
+    },
+    {
+      $project: {
+        __v: 0,
+        'species.__v': 0,
+      },
+    },
+  ]);
+};
+
+export default mongoose.model<Animals, AnimalModel>('Animals', animalSchema);
