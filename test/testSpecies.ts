@@ -137,7 +137,7 @@ const getSpeciesByArea = (
   return new Promise((resolve, reject) => {
     request(app)
       .post(`/api/v1/species/area`)
-      .send(polygon)
+      .send({polygon})
       .expect(200, (err, response) => {
         if (err) {
           reject(err);

@@ -109,7 +109,7 @@ const deleteSpecies = async (
 };
 
 const getSpeciesByArea = async (
-  req: Request<object, object, Polygon>,
+  req: Request<object, object, {polygon: Polygon}>,
   res: Response<Species[]>,
   next: NextFunction,
 ) => {
@@ -121,7 +121,7 @@ const getSpeciesByArea = async (
             $geoWithin: {
               $geometry: {
                 type: 'Polygon',
-                coordinates: req.body.coordinates,
+                coordinates: req.body.polygon,
               },
             },
           },
